@@ -66,6 +66,23 @@ class Usuario(db.Model, UserMixin):
     def verificar_contraseña(self, contraseña_clara):
         return check_password_hash(self.contraseña_hash, contraseña_clara)
 
+
+class CertificadoDigital(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    numero_serie = db.Column(db.String(128), unique=True, nullable=False)
+    alias = db.Column(db.String(128), nullable=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+
+    usuario = relationship('Usuario', backref=db.backref('certificados_digitales', lazy=True))
+
+    def establecer_clave(self, clave_privada):
+        self.password_hash = generate_password_hash(clave_privada)
+
+    def verificar_clave(self, clave_privada):
+        return check_password_hash(self.password_hash, clave_privada)
+
 # Tabla de playlist
 class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)

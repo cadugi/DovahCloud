@@ -3,15 +3,32 @@
 {% block titulo %}Iniciar sesión{% endblock %}
 
 {% block contenido %}
-<h1>🔐 Iniciar sesión</h1>
+<div class="auth-wrapper">
+  <section class="auth-card">
+    <h1>🔐 Iniciar sesión con cuenta local</h1>
+    <p class="helper-text">Usa tu usuario y contraseña propios cuando no dispongas de acceso con Google.</p>
+    <form method="POST" class="auth-form">
+      <label for="nombre">Usuario</label>
+      <input class="auth-input" type="text" name="nombre" id="nombre" required>
 
-<form method="POST">
-  <label for="nombre">Usuario:</label><br>
-  <input type="text" name="nombre" required><br><br>
+      <label for="contraseña">Contraseña</label>
+      <input class="auth-input" type="password" name="contraseña" id="contraseña" required>
 
-  <label for="contraseña">Contraseña:</label><br>
-  <input type="password" name="contraseña" required><br><br>
+      <button type="submit" class="btn btn-primary full-width">👉 Entrar</button>
+    </form>
+  </section>
 
-  <button type="submit">👉 Entrar</button>
-</form>
+  <section class="auth-card auth-card--highlight">
+    <h2>✨ Otras formas de acceso</h2>
+    <p>¿No puedes iniciar sesión con Google? Crea una cuenta local en segundos o utiliza tu certificado digital.</p>
+
+    <a href="{{ url_for('registro') }}" class="btn btn-primary full-width">📝 Crear cuenta local</a>
+
+    <div class="auth-divider">o</div>
+
+    <a href="{{ url_for('login_certificado') }}" class="btn btn-outline full-width">🔏 Entrar con certificado digital</a>
+
+    <p class="helper-text">¿Aún no tienes tu certificado vinculado? <a href="{{ url_for('registro_certificado') }}">Regístralo aquí</a>.</p>
+  </section>
+</div>
 {% endblock %}

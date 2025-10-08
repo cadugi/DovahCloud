@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block titulo %}Registrar certificado digital{% endblock %}
+
+{% block contenido %}
+<div class="auth-wrapper">
+  <section class="auth-card">
+    <h1>🛡️ Registrar certificado digital</h1>
+    <p class="helper-text">Vincula tu certificado electrónico con una contraseña privada para acceder rápidamente a DovahCloud.</p>
+
+    <form method="POST" class="auth-form">
+      <label for="nombre">Nombre de usuario</label>
+      <input class="auth-input" type="text" name="nombre" id="nombre" placeholder="Usuario nuevo o existente" required>
+
+      <label for="numero_serie">Número de serie del certificado</label>
+      <input class="auth-input" type="text" name="numero_serie" id="numero_serie" required>
+
+      <label for="alias">Alias del certificado (opcional)</label>
+      <input class="auth-input" type="text" name="alias" id="alias" placeholder="Certificado empresa / personal">
+
+      <label for="clave_privada">Contraseña privada del certificado</label>
+      <input class="auth-input" type="password" name="clave_privada" id="clave_privada" required>
+
+      <label for="contraseña_local">Contraseña local de respaldo</label>
+      <input class="auth-input" type="password" name="contraseña_local" id="contraseña_local" placeholder="Requerida para usuarios nuevos">
+
+      <label for="avatar">Selecciona un avatar</label>
+      <select class="auth-select" name="avatar" id="avatar">
+        {% for avatar in avatars %}
+          <option value="{{ avatar.valor }}">{{ avatar.etiqueta }}</option>
+        {% endfor %}
+      </select>
+
+      <label class="auth-checkbox">
+        <input type="checkbox" name="acceso_privado" value="1">
+        Conceder acceso a zona privada
+      </label>
+
+      <button type="submit" class="btn btn-primary full-width">Registrar certificado</button>
+    </form>
+
+    <p class="helper-text">Si el usuario ya existe, el certificado quedará vinculado sin crear una cuenta nueva.</p>
+
+    <div class="auth-actions">
+      <a href="{{ url_for('login_certificado') }}" class="btn btn-outline">Iniciar sesión con certificado</a>
+      <a href="{{ url_for('registro') }}" class="link-muted">Prefiero registrarme con usuario y contraseña</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

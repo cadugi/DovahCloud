@@ -3,28 +3,38 @@
 {% block titulo %}Registro de usuario{% endblock %}
 
 {% block contenido %}
-<h1>👤 Crear nuevo usuario</h1>
+<div class="auth-wrapper">
+  <section class="auth-card">
+    <h1>👤 Crear nuevo usuario local</h1>
+    <p class="helper-text">Crea una cuenta tradicional para acceder cuando no tengas disponible el inicio de sesión con Google.</p>
+    <form method="POST" class="auth-form">
+      <label for="nombre">Nombre de usuario</label>
+      <input class="auth-input" type="text" name="nombre" id="nombre" required>
 
-<form method="POST">
-  <label for="nombre">Nombre de usuario:</label><br>
-  <input type="text" name="nombre" required><br><br>
+      <label for="contraseña">Contraseña</label>
+      <input class="auth-input" type="password" name="contraseña" id="contraseña" required>
 
-  <label for="contraseña">Contraseña:</label><br>
-  <input type="password" name="contraseña" required><br><br>
+      <label for="avatar">Selecciona un avatar</label>
+      <select class="auth-select" name="avatar" id="avatar">
+        {% for avatar in avatars %}
+          <option value="{{ avatar.valor }}">{{ avatar.etiqueta }}</option>
+        {% endfor %}
+      </select>
 
-  <label for="avatar">Selecciona un avatar:</label><br>
-  <select name="avatar">
-    <option value="default_avatar.png">🐉 Default</option>
-    <option value="dragon.png">🔥 Dragón</option>
-    <option value="hielo.png">❄️ Hielo</option>
-    <option value="sombra.png">🌑 Sombra</option>
-  </select><br><br>
+      <label class="auth-checkbox">
+        <input type="checkbox" name="acceso_privado" value="1">
+        Conceder acceso a zona privada
+      </label>
 
-  <label>
-    <input type="checkbox" name="acceso_privado" value="1">
-    Conceder acceso a zona privada
-  </label><br><br>
+      <button type="submit" class="btn btn-primary full-width">🪄 Crear cuenta</button>
+    </form>
+  </section>
 
-  <button type="submit">🪄 Crear cuenta</button>
-</form>
+  <section class="auth-card auth-card--highlight">
+    <h2>🔏 Vincula tu certificado digital</h2>
+    <p>Registra tu certificado con una contraseña privada para acceder de forma segura y sin recordar credenciales adicionales.</p>
+    <a href="{{ url_for('registro_certificado') }}" class="btn btn-outline full-width">Registrar certificado digital</a>
+    <p class="helper-text">¿Ya tienes un certificado registrado? <a href="{{ url_for('login_certificado') }}">Inicia sesión aquí</a>.</p>
+  </section>
+</div>
 {% endblock %}

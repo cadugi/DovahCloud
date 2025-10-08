@@ -7,7 +7,19 @@ from werkzeug.security import generate_password_hash
 from PIL import Image
 from config import Config
 from flask_cors import CORS
-from models import Archivo, Etiqueta, Usuario, db, archivo_etiqueta, favoritos, Playlist, playlist_archivo, Bloc, bloc_compartido
+from models import (
+    Archivo,
+    Etiqueta,
+    Usuario,
+    db,
+    archivo_etiqueta,
+    favoritos,
+    Playlist,
+    playlist_archivo,
+    Bloc,
+    bloc_compartido,
+    CertificadoDigital,
+)
 from utils import (
     guardar_miniatura_si_es_imagen,
     convertir_doc_a_pdf,
@@ -52,6 +64,20 @@ db.init_app(app)
 
 app.register_blueprint(api_bp)
 
+AVATARES_DISPONIBLES = [
+    {"valor": "default_avatar.png", "etiqueta": "🐉 Default"},
+    {"valor": "dragon.png", "etiqueta": "🔥 Dragón"},
+    {"valor": "hielo.png", "etiqueta": "❄️ Hielo"},
+    {"valor": "sombra.png", "etiqueta": "🌑 Sombra"},
+]
+
+AUTH_STATIC_FOLDER = os.path.join(app.root_path, 'static')
+
+
+@app.route('/assets/<path:filename>')
+def serve_design_asset(filename):
+    return send_from_directory(AUTH_STATIC_FOLDER, filename)
+
 # Crear tablas al iniciar si no existen
 with app.app_context():
     db.create_all()
@@ -82,7 +108,7 @@ def registro():
         flash("✅ Usuario registrado correctamente.")
         return redirect(url_for('login'))
 
-    return render_template('registro.html')
+    return render_template('registro.html', avatars=AVATARES_DISPONIBLES)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -104,6 +130,82 @@ def login():
             flash("❌ Usuario o contraseña incorrectos.")
 
     return render_template('login.html')
+
+
+@app.route('/login/certificado', methods=['GET', 'POST'])
+def login_certificado():
+    if request.method == 'POST':
+        numero_serie = request.form['numero_serie'].strip()
+        clave_privada = request.form['clave_privada']
+
+        certificado = CertificadoDigital.query.filter_by(numero_serie=numero_serie).first()
+        if certificado and certificado.verificar_clave(clave_privada):
+            usuario = certificado.usuario
+            session['usuario_id'] = usuario.id
+            session['usuario_nombre'] = usuario.nombre
+            session['avatar'] = usuario.avatar
+            session['es_admin'] = usuario.es_admin
+            session['acceso_privado'] = usuario.acceso_privado
+
+            flash(f"✅ Certificado verificado. ¡Bienvenido, {usuario.nombre}!")
+            return redirect(url_for('ver_archivos'))
+
+        flash("❌ Certificado o contraseña privada no válidos.")
+
+    return render_template('login_certificado.html')
+
+
+@app.route('/registro/certificado', methods=['GET', 'POST'])
+def registro_certificado():
+    if request.method == 'POST':
+        nombre = request.form['nombre'].strip().lower()
+        numero_serie = request.form['numero_serie'].strip()
+        alias = request.form.get('alias', '').strip() or None
+        clave_privada = request.form['clave_privada']
+        contraseña_local = request.form.get('contraseña_local', '').strip()
+        avatar = request.form.get('avatar', 'default_avatar.png')
+        acceso_privado = bool(request.form.get('acceso_privado'))
+
+        if CertificadoDigital.query.filter_by(numero_serie=numero_serie).first():
+            flash("❌ Ese certificado ya está registrado en DovahCloud.")
+            return redirect(url_for('registro_certificado'))
+
+        usuario = Usuario.query.filter_by(nombre=nombre).first()
+
+        if usuario is None:
+            if not contraseña_local:
+                flash("⚠️ Debes definir una contraseña local para crear una cuenta nueva.")
+                return redirect(url_for('registro_certificado'))
+
+            usuario = Usuario(
+                nombre=nombre,
+                avatar=avatar,
+                acceso_privado=acceso_privado,
+            )
+            usuario.establecer_contraseña(contraseña_local)
+            db.session.add(usuario)
+            db.session.flush()
+        else:
+            if contraseña_local:
+                usuario.establecer_contraseña(contraseña_local)
+            usuario.acceso_privado = usuario.acceso_privado or acceso_privado
+            if avatar:
+                usuario.avatar = avatar
+
+        certificado = CertificadoDigital(
+            usuario=usuario,
+            numero_serie=numero_serie,
+            alias=alias,
+        )
+        certificado.establecer_clave(clave_privada)
+
+        db.session.add(certificado)
+        db.session.commit()
+
+        flash("✅ Certificado registrado correctamente. Ya puedes iniciar sesión con él.")
+        return redirect(url_for('login_certificado'))
+
+    return render_template('registro_certificado.html', avatars=AVATARES_DISPONIBLES)
 
 @app.route('/logout')
 def logout():
