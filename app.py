@@ -1456,4 +1456,4 @@ def eliminar_bloc(id):
 
 if __name__ == "__main__":
     # Ejecuta Flask directamente con python app.py
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=4238, debug=True)

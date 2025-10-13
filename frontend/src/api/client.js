@@ -1,5 +1,5 @@
 // Cliente ligero para comunicarnos con la API Flask usando fetch.
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
 
 // Ejecuta una petición con las opciones necesarias para mantener la sesión.
 async function apiFetch(path, options = {}) {
