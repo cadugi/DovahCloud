@@ -1,15 +1,11 @@
 {
   "name": "Flask + React Dev",
   "image": "mcr.microsoft.com/devcontainers/python:3.11",
-  "forwardPorts": [5000, 5173],
-  "postCreateCommand": "pip install -r requirements.txt && cd frontend && npm install",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "esbenp.prettier-vscode"
-      ]
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
     }
-  }
+  },
+  "forwardPorts": [4238, 4237],
+  "postCreateCommand": "pip install -r requirements.txt && cd frontend && npm install"
 }
